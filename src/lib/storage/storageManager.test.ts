@@ -98,4 +98,40 @@ describe('StorageManager & Persistence Layer', () => {
     const importSuccess = storageManager.importUserData(exportedStr);
     expect(importSuccess).toBe(true);
   });
+
+  it('adds custom HSK 1-6 vocabulary into the SRS deck and surfaces it in getAllVocabulary()', () => {
+    const customItem = {
+      id: 'hsk2-6-9999',
+      hanzi: '再接再厉',
+      pinyin: 'zài jiē zài lì',
+      meaning_id: 'terus berjuang dan melipatgandakan usaha',
+      part_of_speech: 'Chengyu (Idiom)',
+      hsk_level: 'HSK6' as const,
+      curriculum_version: 'HSK2.0_2012' as const,
+      topic: 'akademik',
+      example_chinese: '希望大家再接再厉。',
+      example_pinyin: 'Xīwàng dàjiā zàijiē-zàilì.',
+      example_indonesian: 'Semoga semuanya terus berjuang meningkatkan usaha.',
+    };
+
+    const progress = storageManager.addVocabToSrs(customItem);
+    expect(progress.vocab_id).toBe('hsk2-6-9999');
+    expect(progress.state).toBe('learning');
+
+    const allVocab = storageManager.getAllVocabulary();
+    expect(allVocab.some((v) => v.id === 'hsk2-6-9999')).toBe(true);
+  });
+
+  it('records interactive Hanzi stroke writing accuracy and mastery', () => {
+    const rec1 = storageManager.recordStrokePractice('永', 2, 5);
+    expect(rec1.char).toBe('永');
+    expect(rec1.times_practiced).toBe(1);
+    expect(rec1.best_accuracy).toBe(80);
+    expect(rec1.mastered).toBe(false);
+
+    const rec2 = storageManager.recordStrokePractice('永', 0, 5);
+    expect(rec2.times_practiced).toBe(2);
+    expect(rec2.best_accuracy).toBe(100);
+    expect(rec2.mastered).toBe(true);
+  });
 });

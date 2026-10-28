@@ -7,7 +7,8 @@ import {
   StudySession, 
   VocabularyItem, 
   Lesson,
-  ReviewRating
+  ReviewRating,
+  StrokePracticeRecord
 } from '@/types';
 import { INITIAL_VOCABULARY } from '@/data/vocabulary';
 import { LESSONS } from '@/data/lessons';
@@ -16,6 +17,8 @@ import { calculateSM2, formatDate, isDueForReview } from '@/lib/srs/sm2';
 const STORAGE_KEYS = {
   PROFILE: 'mandarinpath_profile_v1',
   VOCAB_PROGRESS: 'mandarinpath_vocab_progress_v1',
+  CUSTOM_VOCAB: 'mandarinpath_custom_vocab_v1',
+  STROKE_RECORDS: 'mandarinpath_stroke_records_v1',
   LESSON_PROGRESS: 'mandarinpath_lesson_progress_v1',
   QUIZ_ATTEMPTS: 'mandarinpath_quiz_attempts_v1',
   MISTAKES: 'mandarinpath_mistakes_v1',
@@ -136,8 +139,65 @@ class StorageManager {
   }
 
   // --- Vocabulary & SRS Progress ---
+  public getCustomVocabulary(): VocabularyItem[] {
+    const raw = this.getItem(STORAGE_KEYS.CUSTOM_VOCAB);
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+
+  public addVocabToSrs(item: VocabularyItem): VocabProgress {
+    const custom = this.getCustomVocabulary();
+    const existsInInitial = INITIAL_VOCABULARY.some((v) => v.id === item.id || v.hanzi === item.hanzi);
+    const existingCustomIdx = custom.findIndex((v) => v.id === item.id || v.hanzi === item.hanzi);
+
+    let targetId = item.id;
+    if (existsInInitial) {
+      const found = INITIAL_VOCABULARY.find((v) => v.id === item.id || v.hanzi === item.hanzi)!;
+      targetId = found.id;
+    } else if (existingCustomIdx >= 0) {
+      targetId = custom[existingCustomIdx].id;
+    } else {
+      custom.unshift(item);
+      this.setItem(STORAGE_KEYS.CUSTOM_VOCAB, JSON.stringify(custom.slice(0, 2000)));
+    }
+
+    const allProgress = this.getAllVocabProgress();
+    const today = formatDate(new Date());
+    const progress: VocabProgress = allProgress[targetId] || {
+      vocab_id: targetId,
+      user_id: this.getProfile().id,
+      repetition: 0,
+      interval_days: 0,
+      ease_factor: 2.5,
+      next_review_date: today,
+      last_reviewed_at: new Date().toISOString(),
+      state: 'learning',
+      recognition_history: [],
+      recall_history: [],
+      is_bookmarked: true,
+    };
+    progress.next_review_date = today;
+    progress.is_bookmarked = true;
+    allProgress[targetId] = progress;
+    this.saveAllVocabProgress(allProgress);
+    return progress;
+  }
+
   public getAllVocabulary(): VocabularyItem[] {
-    return INITIAL_VOCABULARY;
+    const custom = this.getCustomVocabulary();
+    const seen = new Set(INITIAL_VOCABULARY.map((v) => v.id));
+    const merged = [...INITIAL_VOCABULARY];
+    for (const c of custom) {
+      if (!seen.has(c.id)) {
+        seen.add(c.id);
+        merged.push(c);
+      }
+    }
+    return merged;
   }
 
   public getAllVocabProgress(): Record<string, VocabProgress> {
@@ -165,13 +225,51 @@ class StorageManager {
 
   public getDueReviewCards(): VocabularyItem[] {
     const allProgress = this.getAllVocabProgress();
+    const allVocab = this.getAllVocabulary();
     const today = formatDate(new Date());
     const dueIds = new Set(
       Object.values(allProgress)
         .filter((p) => isDueForReview(p, today))
         .map((p) => p.vocab_id)
     );
-    return INITIAL_VOCABULARY.filter((v) => dueIds.has(v.id));
+    return allVocab.filter((v) => dueIds.has(v.id));
+  }
+
+  // --- Hanzi Stroke Writing Records ---
+  public getStrokeRecords(): Record<string, StrokePracticeRecord> {
+    const raw = this.getItem(STORAGE_KEYS.STROKE_RECORDS);
+    if (!raw) return {};
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
+  }
+
+  public recordStrokePractice(
+    char: string,
+    mistakes: number,
+    strokeCount: number,
+    pinyin?: string,
+    meaning?: string
+  ): StrokePracticeRecord {
+    const all = this.getStrokeRecords();
+    const prev = all[char];
+    const accuracy = Math.max(0, Math.min(100, Math.round(((strokeCount * 2 - mistakes) / (strokeCount * 2)) * 100)));
+    const record: StrokePracticeRecord = {
+      char,
+      pinyin: pinyin || prev?.pinyin,
+      meaning: meaning || prev?.meaning,
+      times_practiced: (prev?.times_practiced || 0) + 1,
+      total_mistakes: (prev?.total_mistakes || 0) + mistakes,
+      best_accuracy: Math.max(prev?.best_accuracy || 0, accuracy),
+      mastered: accuracy >= 90 || Boolean(prev?.mastered),
+      last_practiced_at: new Date().toISOString(),
+    };
+    all[char] = record;
+    this.setItem(STORAGE_KEYS.STROKE_RECORDS, JSON.stringify(all));
+    this.recordStudyActivity(2, 'writing', 1, accuracy);
+    return record;
   }
 
   public recordReviewAnswer(vocabId: string, rating: ReviewRating, recognitionPassed: boolean = true): VocabProgress {
@@ -395,6 +493,8 @@ class StorageManager {
     const data = {
       profile: this.getProfile(),
       vocab_progress: this.getAllVocabProgress(),
+      custom_vocab: this.getCustomVocabulary(),
+      stroke_records: this.getStrokeRecords(),
       lesson_progress: this.getLessonProgressMap(),
       quiz_attempts: this.getQuizAttempts(),
       mistakes: this.getMistakes(),
@@ -410,6 +510,8 @@ class StorageManager {
       const data = JSON.parse(jsonString);
       if (data.profile) this.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(data.profile));
       if (data.vocab_progress) this.setItem(STORAGE_KEYS.VOCAB_PROGRESS, JSON.stringify(data.vocab_progress));
+      if (data.custom_vocab) this.setItem(STORAGE_KEYS.CUSTOM_VOCAB, JSON.stringify(data.custom_vocab));
+      if (data.stroke_records) this.setItem(STORAGE_KEYS.STROKE_RECORDS, JSON.stringify(data.stroke_records));
       if (data.lesson_progress) this.setItem(STORAGE_KEYS.LESSON_PROGRESS, JSON.stringify(data.lesson_progress));
       if (data.quiz_attempts) this.setItem(STORAGE_KEYS.QUIZ_ATTEMPTS, JSON.stringify(data.quiz_attempts));
       if (data.mistakes) this.setItem(STORAGE_KEYS.MISTAKES, JSON.stringify(data.mistakes));
@@ -423,6 +525,8 @@ class StorageManager {
   public resetAllProgress(): void {
     this.removeItem(STORAGE_KEYS.PROFILE);
     this.removeItem(STORAGE_KEYS.VOCAB_PROGRESS);
+    this.removeItem(STORAGE_KEYS.CUSTOM_VOCAB);
+    this.removeItem(STORAGE_KEYS.STROKE_RECORDS);
     this.removeItem(STORAGE_KEYS.LESSON_PROGRESS);
     this.removeItem(STORAGE_KEYS.QUIZ_ATTEMPTS);
     this.removeItem(STORAGE_KEYS.MISTAKES);

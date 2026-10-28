@@ -25,3 +25,6 @@ next-env.d.ts
 # OS
 .DS_Store
 Thumbs.db
+
+# Raw dataset downloads (generated JSONs in public/data/hsk/ are tracked)
+scripts/raw/

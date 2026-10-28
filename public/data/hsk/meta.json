@@ -1,0 +1,25 @@
+{
+  "generated_at": "2026-10-28T01:49:18.898Z",
+  "source": "https://github.com/drkameleon/complete-hsk-vocabulary",
+  "source_license": "MIT (dataset compilation)",
+  "definitions_license": "CC-CEDICT, CC BY-SA 4.0 — https://cc-cedict.org/wiki/",
+  "notes": "HSK 2.0 = silabus 2010 (Level 1–6, total 4.991 kosakata). HSK 3.0 = Standar Pemeringkatan Kemahiran Bahasa Mandarin GF0025-2021 (Level 1–6 serta Band 7–9, total 10.969 kosakata).",
+  "hsk2": {
+    "1": 150,
+    "2": 147,
+    "3": 298,
+    "4": 598,
+    "5": 1298,
+    "6": 2500
+  },
+  "hsk3": {
+    "1": 506,
+    "2": 750,
+    "3": 953,
+    "4": 972,
+    "5": 1059,
+    "6": 1123,
+    "7": 5606
+  },
+  "handcrafted_indonesian_count": 2590
+}

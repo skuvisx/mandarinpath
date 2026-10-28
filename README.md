@@ -1,177 +1,101 @@
-# MandarinPath (汉语之路)
+# MandarinPath (汉语之路) — by `@skuvis_`
 
-> **Platform Pembelajaran Bahasa Mandarin Terpersonalisasi untuk Penutur Bahasa Indonesia**
+> **Platform Pembelajaran Bahasa Mandarin Terpersonalisasi Lintas Perangkat (Windows Web, Android, iOS) untuk Penutur Bahasa Indonesia**
 
-MandarinPath dirancang khusus untuk memulihkan kelancaran percakapan (*conversational fluency*) dan mempersiapkan ujian sertifikasi HSK bagi pembelajar yang pernah mempelajari bahasa Mandarin (misalnya lulusan sekolah menengah / mahasiswa dengan latar belakang belajar ~12 tahun namun kemampuan lisan dan memori Hanzi/Pinyin sempat menurun).
-
-Platform ini mengintegrasikan metode **Spaced Repetition (SuperMemo SM-2)**, **Laboratorium Menyimak & Shadowing**, **Penyusun Kalimat Interaktif**, serta **Simulasi Ujian HSK 3 Berwaktu**, dengan antarmuka modern berbahasa Indonesia dan dukungan mode **Demo Lokal (Offline-first)** tanpa ketergantungan wajib pada API eksternal berbayar.
+MandarinPath dirancang khusus untuk memulihkan kelancaran percakapan (*conversational fluency*), menguasai penulisan guratan Hanzi, dan mempersiapkan ujian sertifikasi **HSK 1 hingga HSK 6 (serta HSK 3.0 Band 1–9)**. Aplikasi ini dibangun untuk pembelajar mandiri maupun pengguna publik yang membutuhkan sistem belajar terstruktur 20–30 menit per hari.
 
 ---
 
-## 🚀 Fitur Utama
+## 🌟 Fitur Utama & Keunggulan
 
-1. **Diagnosis Kemampuan Awal (Informal Placement Assessment)**
-   - 10 butir soal adaptif mendeteksi retensi Hanzi, nada Pinyin, struktur sintaksis, pemahaman bacaan, dan audio dialog.
-   - Pilihan untuk melewati audio jika lingkungan peramban tidak mendukung suara.
-   - Menghasilkan rekomendasi kurikulum personal (*starting path*) tanpa merendahkan pembelajar ke tingkat nol mutlak.
-   - *Pemberitahuan resmi:* Berfungsi sebagai diagnosis internal, bukan ujian sertifikasi resmi Hanban/CTI.
+1. **Kamus Lengkap HSK 1–6 (4.991 Kata) & HSK 3.0 Band 1–9 (10.969 Kata)**
+   - Mencakup **100% kosakata silabus resmi HSK 2.0 Level 1–6** (`public/data/hsk/hsk2-1.json` s/d `hsk2-6.json`) dan **HSK 3.0 Band 1–9** (`public/data/hsk/hsk3-1.json` s/d `hsk3-7.json`).
+   - Setiap entri dilengkapi: Hanzi Sederhana (*Simplified*), Hanzi Tradisional (*Traditional*), Pinyin bertanda nada akurat, terjemahan Bahasa Indonesia, definisi CC-CEDICT, kelas kata (*Part of Speech*), **214 Radikal Kangxi beserta penjelasan Bahasa Indonesia**, peringkat frekuensi korpus, audio pelafalan, serta tombol **"+ Dek SRS"** sekali klik.
 
-2. **Beranda Belajar & Perencana 20–30 Menit Harian**
-   - Rencana belajar harian terstruktur:
-     1. *Review Kosakata Jatuh Tempo (SRS SM-2)*
-     2. *Materi & Dialog Kurikulum Baru*
-     3. *Lab Mendengarkan & Shadowing*
-     4. *Penyusun Kalimat (Tata Bahasa)*
-     5. *Kuis Evaluasi Singkat*
-   - Pelacak rentetan belajar harian (*study streak*), cincin target belajar, dan kartu lanjutkan pelajaran.
+2. **Lab Guratan & Kaligrafi Hanzi Interaktif (`/writing` & Modal Kosakata)**
+   - Didukung oleh `hanzi-writer` di atas kanvas kisi kaligrafi tradisional **MiZiGe (米字格)**.
+   - **Mode Animasi**: Memutar urutan guratan (*stroke order*) langkah demi langkah dengan pengaturan kecepatan (`0.5x`, `1x`, `2x`) dan tombol tampil/sembunyikan kerangka.
+   - **Mode Uji Tulis & Pengecekan Real-Time**: Pengguna menggambar langsung menggunakan *mouse* (Windows), jari (Android/iOS), atau *stylus* (iPad/Tablet). Sistem memvalidasi arah dan urutan tiap guratan secara langsung, memberikan petunjuk visual saat salah, dan menyimpan skor akurasi ke profil.
 
-3. **Kamus & Kartu Kosakata Spaced Repetition (SRS SM-2)**
-   - Algoritma SuperMemo SM-2 menghitung interval hari, faktor kemudahan (*ease factor*), dan tanggal review berikutnya berdasarkan penilaian kualitas (Lupa, Sulit, Cukup, Mudah).
-   - Penjelasan radikal, komponen karakter, etimologi, rekaman audio, dan kalimat contoh alami.
-   - Pemisahan evaluasi pengenalan (*recognition*) dan ingatan aktif (*recall*).
+3. **Laboratorium Pinyin, Kontur 4 Nada & Aturan Tone Sandhi (`/tones`)**
+   - Visualisasi grafik SVG kontur tinggi-rendah suara (`55`, `35`, `214`, `51`).
+   - **Matriks 20 Kombinasi Nada Dua Suku Kata** dengan audio interaktif.
+   - **3 Aturan Perubahan Nada (*Tone Sandhi*)**: Nada 3+3 (`你好 nǐhǎo → níhǎo`), perubahan nada `不 (bù → bú)`, dan perubahan nada `一 (yī → yí / yì)`.
+   - **Kuis Minimal Pairs (Ear-Training)**: Latihan membedakan pasangan kata yang mirip secara fonetik (`mā/má/mǎ/mà`, `mǎi/mài`, `shuìjiào/shuǐjiǎo`).
 
-4. **Jalur Kurikulum HSK 2.0 & 3.0 Bridge**
-   - Transparansi versi kurikulum antara HSK 2.0 dan HSK 3.0 standar baru.
-   - Dialog percakapan interaktif dengan pemutar audio per baris, sakelar sembunyikan/tampilkan Pinyin dan terjemahan Indonesia.
-   - Bedah tata bahasa mendalam: pola 把, konstruksi 是...的, kalimat komparatif 比, dan penanda aspek 过 / 了.
-   - Latihan urutan kata interaktif (*word order reconstructor*) dan pilihan ganda dengan umpan balik gramatikal langsung.
+4. **Spaced Repetition System (SuperMemo SM-2) & Dek Kustom (`/vocabulary`)**
+   - Algoritma SM-2 transparan yang menghitung interval hari, *ease factor*, dan jadwal review berikutnya berdasarkan 4 tombol evaluasi (*Ulangi / Sulit / Ingat / Mudah*).
+   - Mendukung pintasan papan ketik (`Spasi` untuk balik kartu, `1–4` untuk nilai) dan integrasi langsung kanvas latihan tulis guratan di dalam kartu flashcard.
 
-5. **Lab Mendengarkan & Shadowing (Pronunciation)**
-   - Kontrol kecepatan audio (0.75x, 1.0x, 1.25x), pengulangan, transkrip bertahap.
-   - Dukungan mesin Web Speech API bahasa Mandarin (`zh-CN`) dengan label transparan audio sintetis tanpa pemutaran otomatis tak terduga (*no unexpected autoplay*).
-   - Latihan *shadowing* bertahap dengan evaluasi mandiri jujur (skala 1–5 bintang).
+5. **Jalur Kurikulum Lengkap HSK 1–6 (`/curriculum`)**
+   - Modul pelajaran terstruktur dari **HSK 1 hingga HSK 6** dengan dialog berkecepatan variabel, penjelasan tata bahasa Indonesia (konstruksi `把`, `是...的`, `比`, `不仅...而且`, `既...又`, dsb.), dan latihan rekonstruksi urutan kata.
 
-6. **Kuis Harian & Simulasi Ujian HSK 3 (Mock Exam)**
-   - Simulasi berbatas waktu 15 menit dengan hitung mundur otomatis dan penguncian jawaban setelah dikumpulkan.
-   - Buku Catatan Kesalahan (*Mistake Notebook / 错题本*) yang otomatis menyimpan soal yang salah dijawab untuk diuji ulang hingga tuntas.
+6. **Lab Mendengarkan, Shadowing & Perekam Suara Mikrofon (`/listening`)**
+   - Pemutar audio Web Speech API (`zh-CN`) dengan pengaturan kecepatan (`0.75x`, `1.0x`, `1.25x`) tanpa *autoplay* mendadak.
+   - **Perekam Suara Asli (`MediaRecorder` API)**: Rekam suara Anda langsung di browser dan putar berdampingan dengan audio penutur asli untuk membandingkan intonasi secara objektif.
 
-7. **Analisis Progres, Pencadangan & Pengaturan**
-   - Metrik riwayat nyata: total menit belajar, kosakata matang, persentase akurasi kuis, dan kalender aktivitas.
-   - Ekspor dan impor data kemajuan dalam format berkas JSON mandiri.
-   - Penyesuaian komitmen waktu harian (15, 20, 25, 30 menit) dan target level HSK.
+7. **Lintas Platform: Windows Web, Android & iOS PWA + Sinkronisasi Cloud (`/auth`)**
+   - Dilengkapi Web App Manifest (`manifest.webmanifest`), Service Worker *offline caching* (`public/sw.js`), ikon dinamis resolusi tinggi, dan tata letak responsif (*desktop sidebar* + *mobile bottom navigation* dengan *iOS safe-area-inset*).
+   - Mendukung pendaftaran akun publik & sinkronisasi lintas perangkat menggunakan **Supabase Auth & PostgreSQL RLS**.
 
 ---
 
-## 🛠️ Arsitektur & Tumpukan Teknologi
-
-- **Framework**: Next.js 14 App Router, TypeScript
-- **Styling**: Tailwind CSS dengan palet akademik profesional (Deep Navy `#0f172a`, Brand Blue `#0284c7`, Teal `#0d9488`)
-- **Ikonografi**: Lucide Icons
-- **State & Persistence**:
-  - *Mode Demo Lokal*: LocalStorage + in-memory fallback yang sepenuhnya independen tanpa konfigurasi rumit.
-  - *Cloud Persistence*: Supabase Auth & PostgreSQL dengan Row Level Security (RLS).
-- **Pengujian**: Vitest untuk pengujian unit & integrasi algoritma SM-2, penyimpanan, dan validasi kurikulum.
-
----
-
-## 📁 Struktur Direktori
+## 🏗️ Arsitektur Aplikasi Step-by-Step (Alur Data End-to-End)
 
 ```text
-VISMandarinPath/
-├── .env.example                       # Contoh variabel lingkungan
-├── package.json                       # Konfigurasi dependensi dan skrip proyek
-├── tailwind.config.ts                 # Konfigurasi tema dan tipografi warna
-├── tsconfig.json                      # Konfigurasi TypeScript
-├── vitest.config.ts                   # Konfigurasi test runner Vitest
-│
-├── supabase/
-│   └── migrations/
-│       └── 20240101000000_init_schema.sql  # Skema tabel PostgreSQL & kebijakan RLS
-│
-└── src/
-    ├── app/
-    │   ├── layout.tsx                 # Root layout, metadata SEO, viewport & LearnerProvider
-    │   ├── globals.css                # Utilitas CSS & font Hanzi
-    │   ├── page.tsx                   # Beranda Belajar (Dashboard & 20-30 min plan)
-    │   ├── diagnostic/page.tsx        # Penilaian Penempatan Awal
-    │   ├── vocabulary/page.tsx        # Kamus & Kartu Kosakata SRS SM-2
-    │   ├── curriculum/
-    │   │   ├── page.tsx               # Ikhtisar modul kurikulum HSK
-    │   │   └── [slug]/page.tsx        # Modul pelajaran interaktif & rekonstruksi kata
-    │   ├── listening/page.tsx         # Lab Mendengarkan & Latihan Shadowing
-    │   ├── grammar/page.tsx           # Laboratorium Penyusun Kalimat (Sentence Builder)
-    │   ├── quiz/page.tsx              # Kuis Harian & Simulasi Ujian HSK 3 Berwaktu
-    │   └── analytics/page.tsx         # Analisis Progres, Buku Kesalahan, Ekspor/Impor JSON
-    │
-    ├── components/
-    │   ├── layout/
-    │   │   └── AppShell.tsx           # Navigasi desktop sidebar & bottom mobile bar
-    │   └── ui/
-    │       ├── Button.tsx             # Komponen tombol serbaguna
-    │       ├── Card.tsx               # Kontainer kartu terstandar
-    │       ├── Badge.tsx              # Label status warna-warni
-    │       └── AudioPlayerButton.tsx  # Pemutar audio sintetis Web Speech API
-    │
-    ├── context/
-    │   └── LearnerContext.tsx         # Context API manajemen status global pelajar
-    │
-    ├── data/
-    │   ├── vocabulary.ts              # Data kosakata terverifikasi (HSK 1-4)
-    │   ├── lessons.ts                 # Modul kurikulum, dialog, dan tata bahasa
-    │   ├── diagnostic.ts              # 10 butir instrumen soal diagnostik penempatan
-    │   └── mockExam.ts                # Bank soal simulasi ujian HSK 3 (Tīnglì, Yuèdú, Yǔfǎ)
-    │
-    ├── lib/
-    │   ├── srs/
-    │   │   ├── sm2.ts                 # Implementasi algoritma SuperMemo SM-2
-    │   │   └── sm2.test.ts            # 7 unit test algoritma SM-2
-    │   ├── audio/
-    │   │   └── tts.ts                 # Service Web Speech API Mandarin zh-CN
-    │   ├── storage/
-    │   │   ├── storageManager.ts      # Abstraksi persistensi hibrida (Local + Cloud)
-    │   │   └── storageManager.test.ts # 6 test integrasi penyimpanan data
-    │   └── supabase/
-    │       └── client.ts              # Inisialisasi klien Supabase aman tanpa crash
-    │
-    └── types/
-        └── index.ts                   # Definisi tipe data TypeScript terpusat
+[ Pengguna (Windows Web / Android / iOS PWA) ]
+       │
+       ▼
+[ Next.js 14 App Router UI (React Server & Client Components) ]
+       │
+       ├──► [ Katalog HSK 1–6 & 3.0 (`src/lib/hsk/loader.ts`) ]
+       │         └── Lazy-load & Cache JSON per level dari `/data/hsk/hsk2-*.json`
+       │
+       ├──► [ Mesin Guratan Hanzi (`src/components/writing/HanziStrokePad.tsx`) ]
+       │         └── Render SVG MiZiGe + validasi vektor guratan via `hanzi-writer`
+       │
+       └──► [ Global State (`src/context/LearnerContext.tsx`) ]
+                 │
+                 ├──► [ Mesin SRS SM-2 (`src/lib/srs/sm2.ts`) ]
+                 │         └── Hitung Ease Factor, Interval Hari & Next Review Date
+                 │
+                 └──► [ Lapisan Persistensi Hibrida (`src/lib/storage/storageManager.ts`) ]
+                           ├── 1. Instan: Simpan ke `localStorage` (Offline-First)
+                           └── 2. Cloud Sync (`src/lib/supabase/auth.ts`):
+                                  Push/Pull Snapshot JSONB ke Supabase PostgreSQL (RLS)
 ```
 
 ---
 
-## 🗄️ Skema Database PostgreSQL (Supabase)
-
-Tersedia berkas migrasi lengkap di `supabase/migrations/20240101000000_init_schema.sql` yang mencakup:
-
-| Tabel | Deskripsi | Akses RLS |
-| :--- | :--- | :--- |
-| `curriculums` | Metadata versi kurikulum (HSK 2.0 / 3.0) | Publik (Read-Only) |
-| `vocabulary` | Daftar kosakata, radikal, arti ID, kalimat contoh | Publik (Read-Only) |
-| `lessons` | Modul pelajaran, dialog, tata bahasa, latihan | Publik (Read-Only) |
-| `profiles` | Data profil pembelajar, komitmen harian, target ujian | Privat (Hanya Pemilik) |
-| `user_vocabulary_progress` | Status kartu SRS SM-2 (interval, ease factor, review date) | Privat (Hanya Pemilik) |
-| `user_lesson_progress` | Status penyelesaian dan nilai tiap modul | Privat (Hanya Pemilik) |
-| `quiz_attempts` | Riwayat pengerjaan kuis dan simulasi ujian | Privat (Hanya Pemilik) |
-| `user_mistakes` | Buku catatan kesalahan (*Mistake Bank*) | Privat (Hanya Pemilik) |
-| `study_sessions` | Riwayat durasi aktivitas harian untuk rentetan (*streak*) | Privat (Hanya Pemilik) |
-
----
-
-## ⚙️ Panduan Menjalankan Proyek Secara Lokal (Windows)
+## ⚙️ Panduan Menjalankan Proyek Secara Lokal (Step-by-Step)
 
 ### 1. Prasyarat
-- Node.js versi 18+ (direkomendasikan Node.js v20 atau v24)
+- Node.js versi 18.17+ (direkomendasikan Node.js v20 atau v22 LTS)
 - npm versi 9+
 
 ### 2. Instalasi Dependensi
-Jalankan di PowerShell:
 ```powershell
 npm install
 ```
 
-### 3. Menjalankan Server Pengembangan
+### 3. Membangun Ulang Dataset HSK (Opsional — sudah terbangun di `public/data/hsk/`)
+Jika Anda memperbarui kamus terjemahan di `public/data/hsk/id/`, jalankan:
+```powershell
+node scripts/build-hsk-data.mjs
+```
+
+### 4. Menjalankan Server Pengembangan
 ```powershell
 npm run dev
 ```
-Buka peramban di [http://localhost:3000](http://localhost:3000). Aplikasi langsung dapat digunakan dalam **Mode Demo Lokal** tanpa perlu konfigurasi Supabase awal.
+Buka [http://localhost:3000](http://localhost:3000). Aplikasi langsung berjalan penuh dalam **Mode Penyimpanan Lokal** bahkan sebelum Supabase dikonfigurasi.
 
-### 4. Menjalankan Pengujian Unit & Integrasi
+### 5. Menjalankan Pengujian Otomatis (Vitest)
 ```powershell
 npm test
 ```
-Semua 17 butir pengujian (algoritma SM-2, persistensi data, validasi konten kurikulum) akan dieksekusi menggunakan Vitest.
 
-### 5. Membangun Versi Produksi (*Production Build*)
+### 6. Membangun Versi Produksi (*Production Build*)
 ```powershell
 npm run build
 npm run start
@@ -179,44 +103,36 @@ npm run start
 
 ---
 
-## 🌐 Konfigurasi Supabase (Opsional untuk Sinkronisasi Cloud)
+## ☁️ Konfigurasi Database Supabase (Untuk Login & Sinkronisasi Antar Perangkat)
 
-Jika ingin menghubungkan akun Supabase:
-1. Buat proyek baru di [database.new](https://database.new).
-2. Masuk ke menu **SQL Editor** di dasbor Supabase, lalu salin dan jalankan seluruh isi berkas `supabase/migrations/20240101000000_init_schema.sql`.
-3. Buat berkas `.env.local` di root proyek dan isi kredensial anonim:
+1. Buat proyek gratis di [supabase.com](https://supabase.com).
+2. Buka menu **SQL Editor**, lalu jalankan isi berkas migrasi secara berurutan:
+   - `supabase/migrations/20240101000000_init_schema.sql`
+   - `supabase/migrations/20261028000000_progress_sync.sql`
+3. Salin `.env.example` menjadi `.env.local` dan masukkan URL serta Anon Key proyek Anda:
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://proyek-anda.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
    ```
-4. Jalankan ulang server. Badge di header akan otomatis berubah menjadi **"Supabase Terhubung"**.
 
 ---
 
-## 🚀 Panduan Penerbitan ke Vercel (Deployment)
+## 🚀 Deployment ke Vercel & Instalasi di Windows, Android, dan iOS
 
-Aplikasi dirancang agar langsung siap di-deploy ke Vercel (subdomain gratis `*.vercel.app`):
+### Deploy ke Vercel
+1. Push repositori ini ke GitHub Anda.
+2. Buka [vercel.com/new](https://vercel.com/new) dan impor repositori `MandarinPath`.
+3. Tambahkan `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_ANON_KEY` di bagian *Environment Variables* (opsional).
+4. Klik **Deploy**.
 
-### Opsi A: Melalui Dasbor Web Vercel
-1. Unggah kode ke repositori GitHub pribadi/publik Anda.
-2. Buka [vercel.com](https://vercel.com) dan pilih **Add New Project**.
-3. Hubungkan repositori GitHub `MandarinPath`.
-4. Pada bagian *Environment Variables*, tambahkan variabel dari `.env.example` (jika menggunakan Supabase) atau biarkan kosong untuk mode Demo Lokal instan.
-5. Klik **Deploy**. Vercel akan otomatis mendeteksi konfigurasi Next.js dan menghasilkan URL seperti `https://mandarinpath.vercel.app`.
-
-### Opsi B: Menggunakan Vercel CLI
-```powershell
-npm install -g vercel
-vercel login
-vercel
-vercel --prod
-```
+### Cara Menginstal sebagai Aplikasi (PWA):
+- **Windows (Chrome / Edge)**: Buka URL website → klik ikon **Install App ( komputer/plus )** di sisi kanan bilah alamat → klik **Install**.
+- **Android (Chrome)**: Buka URL website → ketuk menu **⋮ (tiga titik)** di kanan atas → pilih **Tambahkan ke Layar Utama / Install Aplikasi**.
+- **iOS / iPadOS (Safari)**: Buka URL website di Safari → ketuk tombol **Bagikan (Share)** di bawah → pilih **Tambahkan ke Layar Utama (Add to Home Screen)**.
 
 ---
 
-## 🛣️ Peta Jalan Pengembangan Berikutnya (Roadmap)
-
-- [ ] **Pemberian Skor Pelafalan Otomatis (Speech Evaluation API)**: Integrasi Azure Cognitive Services atau Whisper untuk analisis fonetik dan nada pinyin presisi tinggi.
-- [ ] **HSK 4 & 5 Expansion**: Penambahan 1.200 kosakata lanjutan dan format soal esai menyusun kalimat HSK 4/5.
-- [ ] **Sesi Obrolan Terbimbing AI Tutor**: Simulasi dialog skenario bebas dengan umpan balik gramatikal *real-time*.
-- [ ] **Notifikasi Pengingat Belajar Harian**: Web Push Notification sesuai jam belajar komitmen pengguna.
+## © Lisensi & Trademark
+- Desain & Arsitektur Aplikasi: **MandarinPath** — Crafted by **`@skuvis_`**.
+- Dataset Kosakata HSK & Definisi: CC-CEDICT (CC BY-SA 4.0) & Open HSK Dataset (MIT).
+- Data Vektor Guratan Karakter: Hanzi Writer Data / Make Me a Hanzi (ARPHIC / LGPL).

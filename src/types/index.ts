@@ -190,7 +190,18 @@ export interface StudySession {
   id: string;
   date: string;
   duration_minutes: number;
-  activity_type: 'flashcards' | 'lesson' | 'listening' | 'quiz' | 'diagnostic';
+  activity_type: 'flashcards' | 'lesson' | 'listening' | 'quiz' | 'diagnostic' | 'writing' | 'tones';
   cards_reviewed_count: number;
   score_percentage?: number;
+}
+
+export interface StrokePracticeRecord {
+  char: string;
+  pinyin?: string;
+  meaning?: string;
+  times_practiced: number;
+  total_mistakes: number;
+  best_accuracy: number;
+  mastered: boolean;
+  last_practiced_at: string;
 }

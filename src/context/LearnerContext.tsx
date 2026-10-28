@@ -9,10 +9,13 @@ import {
   UserMistake, 
   VocabularyItem, 
   Lesson,
-  ReviewRating
+  ReviewRating,
+  StrokePracticeRecord,
+  StudySession
 } from '@/types';
 import { storageManager, DEFAULT_GUEST_PROFILE } from '@/lib/storage/storageManager';
-import { isSupabaseConfigured } from '@/lib/supabase/client';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
+import { pushSnapshot, pullSnapshot } from '@/lib/supabase/auth';
 import { formatDate } from '@/lib/srs/sm2';
 
 interface DailyGoalStatus {
@@ -22,13 +25,20 @@ interface DailyGoalStatus {
   isGoalAchieved: boolean;
 }
 
+interface AuthUserInfo {
+  id: string;
+  email?: string;
+}
+
 interface LearnerContextType {
   profile: UserProfile;
+  authUser: AuthUserInfo | null;
   isGuest: boolean;
   isSupabaseActive: boolean;
   vocabList: VocabularyItem[];
   vocabProgress: Record<string, VocabProgress>;
   dueCards: VocabularyItem[];
+  strokeRecords: Record<string, StrokePracticeRecord>;
   lessons: Lesson[];
   lessonProgress: Record<string, LessonProgress>;
   mistakes: UserMistake[];
@@ -39,6 +49,20 @@ interface LearnerContextType {
   // Actions
   updateProfile: (updates: Partial<UserProfile>) => void;
   recordVocabReview: (vocabId: string, rating: ReviewRating) => void;
+  addVocabToSrs: (item: VocabularyItem) => VocabProgress;
+  recordStrokePractice: (
+    char: string,
+    mistakes: number,
+    strokeCount: number,
+    pinyin?: string,
+    meaning?: string
+  ) => StrokePracticeRecord;
+  recordStudyActivity: (
+    durationMinutes: number,
+    activityType: StudySession['activity_type'],
+    cardsCount?: number,
+    scorePercentage?: number
+  ) => void;
   toggleBookmark: (vocabId: string) => boolean;
   completeLesson: (lessonId: string, score?: number) => void;
   resolveMistake: (mistakeId: string) => void;
@@ -47,13 +71,17 @@ interface LearnerContextType {
   exportData: () => string;
   importData: (jsonStr: string) => boolean;
   resetAll: () => void;
+  syncToCloud: () => Promise<{ ok: boolean; message: string }>;
 }
 
 const LearnerContext = createContext<LearnerContextType | undefined>(undefined);
 
 export function LearnerProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_GUEST_PROFILE);
+  const [authUser, setAuthUser] = useState<AuthUserInfo | null>(null);
+  const [vocabList, setVocabList] = useState<VocabularyItem[]>([]);
   const [vocabProgress, setVocabProgress] = useState<Record<string, VocabProgress>>({});
+  const [strokeRecords, setStrokeRecords] = useState<Record<string, StrokePracticeRecord>>({});
   const [lessonProgress, setLessonProgress] = useState<Record<string, LessonProgress>>({});
   const [dueCards, setDueCards] = useState<VocabularyItem[]>([]);
   const [mistakes, setMistakes] = useState<UserMistake[]>([]);
@@ -62,14 +90,18 @@ export function LearnerProvider({ children }: { children: React.ReactNode }) {
 
   const refreshData = useCallback(() => {
     const prof = storageManager.getProfile();
+    const vList = storageManager.getAllVocabulary();
     const vProg = storageManager.getAllVocabProgress();
+    const sRec = storageManager.getStrokeRecords();
     const lProg = storageManager.getLessonProgressMap();
     const due = storageManager.getDueReviewCards();
     const mist = storageManager.getMistakes();
     const qAtt = storageManager.getQuizAttempts();
 
     setProfile(prof);
+    setVocabList(vList);
     setVocabProgress(vProg);
+    setStrokeRecords(sRec);
     setLessonProgress(lProg);
     setDueCards(due);
     setMistakes(mist);
@@ -79,6 +111,38 @@ export function LearnerProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     refreshData();
+
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
+    if (supabase) {
+      supabase.auth.getSession().then(({ data }) => {
+        const u = data.session?.user;
+        if (u) {
+          setAuthUser({ id: u.id, email: u.email });
+          pullSnapshot(u.id).then((res) => {
+            if (res.ok && res.json) {
+              storageManager.importUserData(res.json);
+              refreshData();
+            }
+          });
+        }
+      });
+
+      const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+        const u = session?.user;
+        if (u) {
+          setAuthUser({ id: u.id, email: u.email });
+        } else {
+          setAuthUser(null);
+        }
+      });
+
+      return () => {
+        sub.subscription.unsubscribe();
+      };
+    }
   }, [refreshData]);
 
   const updateProfile = (updates: Partial<UserProfile>) => {
@@ -88,6 +152,34 @@ export function LearnerProvider({ children }: { children: React.ReactNode }) {
 
   const recordVocabReview = (vocabId: string, rating: ReviewRating) => {
     storageManager.recordReviewAnswer(vocabId, rating);
+    refreshData();
+  };
+
+  const addVocabToSrs = (item: VocabularyItem) => {
+    const res = storageManager.addVocabToSrs(item);
+    refreshData();
+    return res;
+  };
+
+  const recordStrokePractice = (
+    char: string,
+    mistakesCount: number,
+    strokeCount: number,
+    pinyin?: string,
+    meaning?: string
+  ) => {
+    const rec = storageManager.recordStrokePractice(char, mistakesCount, strokeCount, pinyin, meaning);
+    refreshData();
+    return rec;
+  };
+
+  const recordStudyActivity = (
+    durationMinutes: number,
+    activityType: StudySession['activity_type'],
+    cardsCount: number = 0,
+    scorePercentage?: number
+  ) => {
+    storageManager.recordStudyActivity(durationMinutes, activityType, cardsCount, scorePercentage);
     refreshData();
   };
 
@@ -126,7 +218,16 @@ export function LearnerProvider({ children }: { children: React.ReactNode }) {
     refreshData();
   };
 
-  // Calculate today's study minutes
+  const syncToCloud = async (): Promise<{ ok: boolean; message: string }> => {
+    if (!authUser) {
+      return { ok: false, message: 'Silakan masuk akun terlebih dahulu untuk menyinkronkan ke cloud.' };
+    }
+    const json = storageManager.exportUserData();
+    const res = await pushSnapshot(authUser.id, json);
+    if (!res.ok) return { ok: false, message: res.error };
+    return { ok: true, message: 'Progres berhasil disinkronkan ke Cloud!' };
+  };
+
   const todayStr = formatDate(new Date());
   const sessions = storageManager.getStudySessions();
   const todaySessions = sessions.filter((s) => s.date === todayStr);
@@ -146,11 +247,13 @@ export function LearnerProvider({ children }: { children: React.ReactNode }) {
     <LearnerContext.Provider
       value={{
         profile,
-        isGuest: true, // Guest / local mode is standard fallback when no cloud auth
+        authUser,
+        isGuest: !authUser,
         isSupabaseActive: isSupabaseConfigured,
-        vocabList: storageManager.getAllVocabulary(),
+        vocabList,
         vocabProgress,
         dueCards,
+        strokeRecords,
         lessons: storageManager.getLessons(),
         lessonProgress,
         mistakes,
@@ -159,6 +262,9 @@ export function LearnerProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         updateProfile,
         recordVocabReview,
+        addVocabToSrs,
+        recordStrokePractice,
+        recordStudyActivity,
         toggleBookmark,
         completeLesson,
         resolveMistake,
@@ -167,6 +273,7 @@ export function LearnerProvider({ children }: { children: React.ReactNode }) {
         exportData,
         importData,
         resetAll,
+        syncToCloud,
       }}
     >
       {children}

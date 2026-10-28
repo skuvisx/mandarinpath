@@ -36,6 +36,7 @@ export default function AnalyticsAndSettingsPage() {
     quizAttempts, 
     mistakes, 
     resolveMistake,
+    strokeRecords,
     exportData, 
     importData, 
     resetAll 
@@ -117,7 +118,7 @@ export default function AnalyticsAndSettingsPage() {
       </div>
 
       {/* Real Statistics Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         <Card className="p-4">
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
             Kosakata Dikuasai
@@ -130,6 +131,21 @@ export default function AnalyticsAndSettingsPage() {
           </div>
           <span className="text-[11px] text-slate-500 mt-1 block">
             {learningCount} sedang dipelajari
+          </span>
+        </Card>
+
+        <Card className="p-4">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
+            Guratan Hanzi
+          </span>
+          <div className="flex items-baseline gap-1 mt-1">
+            <span className="text-2xl sm:text-3xl font-extrabold text-teal-600">
+              {Object.keys(strokeRecords).length}
+            </span>
+            <span className="text-xs text-slate-400">karakter</span>
+          </div>
+          <span className="text-[11px] text-slate-500 mt-1 block">
+            {Object.values(strokeRecords).filter((r) => r.mastered).length} mahir tanpa salah
           </span>
         </Card>
 
@@ -159,11 +175,11 @@ export default function AnalyticsAndSettingsPage() {
             <span className="text-xs text-slate-400">/ {lessons.length}</span>
           </div>
           <span className="text-[11px] text-slate-500 mt-1 block">
-            Kurikulum HSK 2-3
+            Kurikulum HSK 1–6
           </span>
         </Card>
 
-        <Card className="p-4">
+        <Card className="p-4 col-span-2 sm:col-span-1">
           <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
             Rata-rata Akurasi Kuis
           </span>
@@ -269,10 +285,12 @@ export default function AnalyticsAndSettingsPage() {
                 onChange={(e) => setTargetLevel(e.target.value as HskLevel)}
                 className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:ring-brand-500"
               >
-                <option value="HSK1">HSK 1 (Dasar Awal)</option>
-                <option value="HSK2">HSK 2 (Percakapan Sehari-hari)</option>
-                <option value="HSK3">HSK 3 (Menengah - Reaktivasi Target)</option>
-                <option value="HSK4">HSK 4 (Lancar Percakapan Mandiri)</option>
+                <option value="HSK1">HSK 1 (Dasar Awal - 150 kata)</option>
+                <option value="HSK2">HSK 2 (Percakapan Sehari-hari - 300 kata)</option>
+                <option value="HSK3">HSK 3 (Menengah - Reaktivasi Target - 600 kata)</option>
+                <option value="HSK4">HSK 4 (Lancar Percakapan Mandiri - 1.200 kata)</option>
+                <option value="HSK5">HSK 5 (Menengah Atas & Media - 2.500 kata)</option>
+                <option value="HSK6">HSK 6 (Mahir & Akademik - 5.000+ kata)</option>
               </select>
             </div>
 
