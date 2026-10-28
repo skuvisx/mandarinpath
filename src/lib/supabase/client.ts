@@ -1,7 +1,11 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const rawSupabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
+// Automatically normalize URL if user accidentally copied "/rest/v1/" from Supabase Data API settings
+const supabaseUrl = rawSupabaseUrl
+  .replace(/\/rest\/v1\/?$/i, '')
+  .replace(/\/+$/, '');
+const supabaseAnonKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '').trim();
 
 /**
  * True only when real-looking public Supabase credentials are present.

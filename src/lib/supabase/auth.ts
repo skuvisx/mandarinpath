@@ -27,10 +27,21 @@ function notConfigured(): AuthResult {
 function translateError(msg: string): string {
   const m = msg.toLowerCase();
   if (m.includes('invalid login')) return 'Email atau kata sandi salah.';
-  if (m.includes('already registered') || m.includes('already been registered')) return 'Email sudah terdaftar. Silakan masuk.';
-  if (m.includes('email not confirmed')) return 'Email belum dikonfirmasi. Cek kotak masuk Anda.';
-  if (m.includes('rate limit')) return 'Terlalu banyak percobaan. Coba lagi beberapa menit lagi.';
-  return 'Terjadi kesalahan autentikasi. Silakan coba lagi.';
+  if (m.includes('already registered') || m.includes('already been registered'))
+    return 'Email sudah terdaftar. Silakan pindah ke tab Masuk.';
+  if (m.includes('email not confirmed'))
+    return 'Email belum dikonfirmasi. Cek kotak masuk/spam email Anda atau matikan "Confirm email" di Supabase Auth → Providers → Email.';
+  if (m.includes('rate limit') || m.includes('over_email_send_rate_limit'))
+    return 'Batas pengiriman email Supabase tercapai (maks 2-3 email/jam di paket gratis). Matikan opsi "Confirm email" di Supabase → Authentication → Providers → Email agar bisa daftar langsung tanpa batas.';
+  if (m.includes('invalid api key') || m.includes('apikey'))
+    return 'NEXT_PUBLIC_SUPABASE_ANON_KEY tidak valid. Pastikan Anda menyalin kunci "anon public" (diawali eyJ... atau sb_publishable_...) dari Supabase → Project Settings → API.';
+  if (m.includes('is invalid') && m.includes('email'))
+    return 'Alamat email ditolak oleh Supabase (jangan gunakan domain palsu seperti @example.com atau @test.com; gunakan @gmail.com atau domain asli).';
+  if (m.includes('failed to fetch') || m.includes('networkerror') || m.includes('fetch'))
+    return 'Gagal menghubungi server Supabase. Pastikan NEXT_PUBLIC_SUPABASE_URL berisi https://xxxx.supabase.co (tanpa /rest/v1/).';
+  if (m.includes('signups not allowed') || m.includes('signup_disabled'))
+    return 'Pendaftaran pengguna baru sedang dinonaktifkan di pengaturan Supabase Authentication.';
+  return `Terjadi kesalahan autentikasi: ${msg}`;
 }
 
 export async function signUp(input: unknown): Promise<AuthResult> {
@@ -42,7 +53,7 @@ export async function signUp(input: unknown): Promise<AuthResult> {
     email,
     password,
     options: {
-      data: { name },
+      data: { name, full_name: name },
       emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth` : undefined,
     },
   });
