@@ -28,7 +28,7 @@ const STORAGE_KEYS = {
 // Default profile designed for our target persona
 export const DEFAULT_GUEST_PROFILE: UserProfile = {
   id: 'guest-learner-01',
-  name: '@skuvis_',
+  name: 'Pelajar Mandarin',
   email: 'learner@mandarinpath.app',
   daily_goal_minutes: 25,
   study_duration_preference: 25,
@@ -122,7 +122,11 @@ class StorageManager {
     }
     try {
       const parsed: UserProfile = JSON.parse(raw);
-      if (parsed.name === 'Budi Santoso (Pelajar Tamu)' || parsed.name === 'Budi Santoso') {
+      if (
+        parsed.name === 'Budi Santoso (Pelajar Tamu)' ||
+        parsed.name === 'Budi Santoso' ||
+        parsed.name === '@skuvis_'
+      ) {
         parsed.name = DEFAULT_GUEST_PROFILE.name;
         parsed.email = DEFAULT_GUEST_PROFILE.email;
         this.saveProfile(parsed);

@@ -121,6 +121,16 @@ export function LearnerProvider({ children }: { children: React.ReactNode }) {
         const u = data.session?.user;
         if (u) {
           setAuthUser({ id: u.id, email: u.email });
+          const metaName =
+            (u.user_metadata?.full_name as string | undefined)?.trim() ||
+            u.email?.split('@')[0];
+          if (metaName) {
+            const currentProf = storageManager.getProfile();
+            if (currentProf.name === DEFAULT_GUEST_PROFILE.name || !currentProf.name) {
+              storageManager.updateProfile({ name: metaName, email: u.email });
+              refreshData();
+            }
+          }
           pullSnapshot(u.id).then((res) => {
             if (res.ok && res.json) {
               storageManager.importUserData(res.json);
@@ -134,6 +144,16 @@ export function LearnerProvider({ children }: { children: React.ReactNode }) {
         const u = session?.user;
         if (u) {
           setAuthUser({ id: u.id, email: u.email });
+          const metaName =
+            (u.user_metadata?.full_name as string | undefined)?.trim() ||
+            u.email?.split('@')[0];
+          if (metaName) {
+            const currentProf = storageManager.getProfile();
+            if (currentProf.name === DEFAULT_GUEST_PROFILE.name || !currentProf.name) {
+              storageManager.updateProfile({ name: metaName, email: u.email });
+              refreshData();
+            }
+          }
         } else {
           setAuthUser(null);
         }

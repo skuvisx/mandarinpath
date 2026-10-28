@@ -31,6 +31,7 @@ import { Badge } from '@/components/ui/Badge';
 export default function AuthAndSyncPage() {
   const {
     profile,
+    updateProfile,
     authUser,
     isSupabaseActive,
     syncToCloud,
@@ -60,6 +61,9 @@ export default function AuthAndSyncPage() {
     e.preventDefault();
     setLoading(true);
     setFeedback(null);
+    if (name.trim()) {
+      updateProfile({ name: name.trim(), email: email.trim() || profile.email });
+    }
     const res = await signUp({ name, email, password });
     setLoading(false);
     setFeedback({

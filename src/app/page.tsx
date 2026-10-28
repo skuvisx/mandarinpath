@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   Sparkles,
@@ -18,6 +18,8 @@ import {
   Music,
   Database,
   Smartphone,
+  Edit3,
+  Check,
 } from 'lucide-react';
 import { useLearner } from '@/context/LearnerContext';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card';
@@ -36,6 +38,7 @@ const HSK_OVERVIEW_LEVELS = [
 export default function DashboardPage() {
   const {
     profile,
+    updateProfile,
     dailyGoalStatus,
     dueCards,
     strokeRecords,
@@ -43,6 +46,18 @@ export default function DashboardPage() {
     lessonProgress,
     vocabProgress,
   } = useLearner();
+
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState(profile.name);
+
+  const handleSaveName = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = nameInput.trim();
+    if (trimmed) {
+      updateProfile({ name: trimmed });
+    }
+    setIsEditingName(false);
+  };
 
   const completedLessonIds = new Set(
     Object.keys(lessonProgress).filter((id) => lessonProgress[id]?.completed)
@@ -71,9 +86,42 @@ export default function DashboardPage() {
             </span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Selamat Datang Kembali, {profile.name}!
-          </h1>
+          {isEditingName ? (
+            <form onSubmit={handleSaveName} className="flex flex-wrap items-center gap-2 pt-1">
+              <input
+                type="text"
+                value={nameInput}
+                onChange={(e) => setNameInput(e.target.value)}
+                placeholder="Masukkan nama Anda..."
+                autoFocus
+                className="px-3 py-1.5 rounded-lg bg-white/15 border border-white/30 text-white placeholder-slate-300 text-base sm:text-lg font-bold focus:outline-none focus:ring-2 focus:ring-teal-400"
+              />
+              <Button
+                type="submit"
+                size="sm"
+                className="bg-teal-500 hover:bg-teal-600 text-slate-950 font-bold"
+              >
+                <Check className="w-4 h-4 mr-1" /> Simpan Nama
+              </Button>
+            </form>
+          ) : (
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Selamat Datang Kembali, {profile.name}!
+              </h1>
+              <button
+                type="button"
+                onClick={() => {
+                  setNameInput(profile.name === 'Pelajar Mandarin' ? '' : profile.name);
+                  setIsEditingName(true);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-medium text-slate-200 transition-colors"
+                title="Ubah nama panggilan Anda"
+              >
+                <Edit3 className="w-3.5 h-3.5" /> Ubah Nama
+              </button>
+            </div>
+          )}
 
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
             Target harian Anda adalah <strong className="text-white">{profile.daily_goal_minutes} menit</strong> untuk memulihkan kelancaran percakapan, penguasaan guratan Hanzi, dan sertifikasi{' '}
