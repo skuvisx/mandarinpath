@@ -28,8 +28,8 @@ const STORAGE_KEYS = {
 // Default profile designed for our target persona
 export const DEFAULT_GUEST_PROFILE: UserProfile = {
   id: 'guest-learner-01',
-  name: 'Budi Santoso (Pelajar Tamu)',
-  email: 'budi.learner@example.com',
+  name: '@skuvis_',
+  email: 'learner@mandarinpath.app',
   daily_goal_minutes: 25,
   study_duration_preference: 25,
   target_exam_level: 'HSK3',
@@ -121,7 +121,13 @@ class StorageManager {
       return DEFAULT_GUEST_PROFILE;
     }
     try {
-      return JSON.parse(raw);
+      const parsed: UserProfile = JSON.parse(raw);
+      if (parsed.name === 'Budi Santoso (Pelajar Tamu)' || parsed.name === 'Budi Santoso') {
+        parsed.name = DEFAULT_GUEST_PROFILE.name;
+        parsed.email = DEFAULT_GUEST_PROFILE.email;
+        this.saveProfile(parsed);
+      }
+      return parsed;
     } catch {
       return DEFAULT_GUEST_PROFILE;
     }
